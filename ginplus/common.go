@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"net"
 	"net/http"
+
+	"github.com/thinkeridea/go-extend/exnet"
 )
 
 const (
@@ -14,7 +16,11 @@ const (
 // RemoteIp 返回远程客户端的 IP，如 192.168.1.1
 func RemoteIp(req *http.Request) string {
 	remoteAddr := req.RemoteAddr
-	if ip := req.Header.Get(XRealIP); ip != "" {
+	if ip := exnet.ClientPublicIP(req); ip != "" {
+		remoteAddr = ip
+	} else if ip := exnet.ClientIP(req); ip != "" {
+		remoteAddr = ip
+	} else if ip := req.Header.Get(XRealIP); ip != "" {
 		remoteAddr = ip
 	} else if ip = req.Header.Get(XForwardedFor); ip != "" {
 		remoteAddr = ip
